@@ -1,0 +1,1 @@
+https://hub.docker.com/repository/docker/chairulikhsan23/sentimen-dana-mlflow
