@@ -5,8 +5,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'MLProject/**'  # Workflow berjalan hanya jika ada perubahan di folder MLProject
-  workflow_dispatch:  # Memungkinkan menjalankan workflow manual dari GitHub UI
+      - 'MLProject/**'
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -49,22 +49,12 @@ jobs:
             numpy \
             pandas \
             matplotlib
-      
-      # 5.5 Setup Conda environment
-      - name: Set up Conda
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: true
-          python-version: '3.12.7'
-          environment-file: MLProject/conda.yaml
-          activate-environment: mlflow-env
 
       # 6. Menjalankan MLflow project (training model)
       - name: Run MLflow project
-        shell: bash -l {0}
         run: |
           cd MLProject
-          mlflow run . -P C=1.0 -P max_iter=1000
+          mlflow run . -P C=1.0 -P max_iter=1000 --env-manager=local
 
       # 7. Mendapatkan run_id dari MLflow run terakhir
       - name: Get latest MLflow run_id
@@ -75,11 +65,7 @@ jobs:
           echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
           echo "Latest run_id: $RUN_ID"
 
-      # Install Python dependecies
-      - name: Install Python dependencies
-        run: pip install requests
-
-      # 8. Menyimpan hasil training sebagai artifact (model, vectorizer, dll) (Github)
+      # 8. Menyimpan hasil training sebagai artifact (model, vectorizer, dll)
       - name: Upload model artifacts to GitHub
         uses: actions/upload-artifact@v4
         with:
