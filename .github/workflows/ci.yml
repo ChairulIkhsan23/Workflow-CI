@@ -56,7 +56,6 @@ jobs:
 
       # 6. Menjalankan MLflow project (training model)
       - name: Run MLflow project
-        shell: bash -l {0}
         run: |
           cd MLProject
           mlflow run . -P C=1.0 -P max_iter=1000
