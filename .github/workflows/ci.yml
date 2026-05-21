@@ -45,8 +45,18 @@ jobs:
           pip install --upgrade pip
           pip install requests
 
+      # 5.5 Setup conda environment
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: '3.12.7'
+          environment-file: MLProject/conda.yaml
+          activate-environment: mlflow-env
+
       # 6. Menjalankan MLflow project (training model)
       - name: Run MLflow project
+        shell: bash -l {0}
         run: |
           cd MLProject
           mlflow run . -P C=1.0 -P max_iter=1000
