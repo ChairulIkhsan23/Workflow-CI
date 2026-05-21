@@ -1,7 +1,5 @@
 name: sentimen-dana-mlflow-project
 
-conda_env: conda.yaml
-
 entry_points:
   main:
     parameters:
