@@ -40,7 +40,6 @@ jobs:
           echo "Environment ready"
 
       # 5. Menginstall library yang dibutuhkan
-
       - name: Install dependencies
         run: |
           pip install --upgrade pip
@@ -51,7 +50,7 @@ jobs:
             pandas \
             matplotlib
       
-      # Setup Conda environment
+      # 5.5 Setup Conda environment
       - name: Set up Conda
         uses: conda-incubator/setup-miniconda@v3
         with:
