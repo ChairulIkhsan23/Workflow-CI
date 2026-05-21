@@ -56,7 +56,7 @@ jobs:
         shell: bash -l {0}
         run: |
           cd MLProject
-          mlflow run . -P C=1.0 -P max_iter=1000 --env-manager=local
+          mlflow run . -P C=1.0 -P max_iter=1000
 
       # 7. Mendapatkan run_id dari MLflow run terakhir
       - name: Get latest MLflow run_id
@@ -68,7 +68,7 @@ jobs:
           echo "Latest run_id: $RUN_ID"
 
       # Install Python dependecies
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: pip install requests
 
       # 8. Menyimpan hasil training sebagai artifact (model, vectorizer, dll) (Github)
