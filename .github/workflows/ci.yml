@@ -54,7 +54,7 @@ jobs:
       - name: Run MLflow project
         run: |
           cd MLProject
-          mlflow run . -P C=1.0 -P max_iter=1000 --env-manager=local
+          python modelling.py --C 1.0 --max_iter 1000
 
       # 7. Mendapatkan run_id dari MLflow run terakhir
       - name: Get latest MLflow run_id
