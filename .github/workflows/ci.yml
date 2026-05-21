@@ -90,23 +90,11 @@ jobs:
 
       # 9. Menyimpan hasil training sebagai model artifacts
       - name: Upload model artifacts to GitHub
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          mkdir -p model_artifacts
-
-          cp MLProject/latest_run_id.txt model_artifacts/ 2>/dev/null || true
-          cp MLProject/model.pkl model_artifacts/ 2>/dev/null || true
-          cp MLProject/tfidf_vectorizer.pkl model_artifacts/ 2>/dev/null || true
-          cp -r MLProject/mlruns model_artifacts/ 2>/dev/null || true
-
-          git add -f model_artifacts/
-          git diff --staged --quiet && echo "No changes." || (
-            git commit -m "ci: save model artifacts [run=${{ env.LATEST_RUN_ID }}] [$(date +'%Y-%m-%d %H:%M')]"
-            git push
-          )
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-artifacts
+          path: MLProject/
+          retention-days: 30
 
       # 10. Membangun Docker image dari model yang sudah dilatih
       - name: Build Docker Model
