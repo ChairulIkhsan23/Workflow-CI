@@ -50,6 +50,15 @@ jobs:
             numpy \
             pandas \
             matplotlib
+      
+      # Setup Conda environment
+      - name: Set up Conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: '3.12.7'
+          environment-file: MLProject/conda.yaml
+          activate-environment: mlflow-env
 
       # 6. Menjalankan MLflow project (training model)
       - name: Run MLflow project
