@@ -40,19 +40,16 @@ jobs:
           echo "Environment ready"
 
       # 5. Menginstall library yang dibutuhkan
+
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install requests
-
-      # 5.5 Setup conda environment
-      - name: Set up Conda
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: true
-          python-version: '3.12.7'
-          environment-file: MLProject/conda.yaml
-          activate-environment: mlflow-env
+          pip install \
+            mlflow==2.19.0 \
+            scikit-learn==1.8.0 \
+            numpy \
+            pandas \
+            matplotlib
 
       # 6. Menjalankan MLflow project (training model)
       - name: Run MLflow project
@@ -70,7 +67,11 @@ jobs:
           echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
           echo "Latest run_id: $RUN_ID"
 
-      # 8. Menyimpan hasil training sebagai artifact (model, vectorizer, dll)
+      # Install Python dependecies
+      - name: Install dependencies
+        run: pip install requests
+
+      # 8. Menyimpan hasil training sebagai artifact (model, vectorizer, dll) (Github)
       - name: Upload model artifacts to GitHub
         uses: actions/upload-artifact@v4
         with:
