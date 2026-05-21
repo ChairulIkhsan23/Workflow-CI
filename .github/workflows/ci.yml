@@ -46,21 +46,13 @@ jobs:
           pip install requests
 
       # 5.5 Setup conda environment
-      - name: Cache conda packages
-        uses: actions/cache@v4
-        with:
-          path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-conda-${{ hashFiles('MLProject/conda.yaml') }}
-          restore-keys: ${{ runner.os }}-conda-
-
-      - name: Setup Conda with cache
+      - name: Set up Conda
         uses: conda-incubator/setup-miniconda@v3
         with:
-          auto-update-conda: true
+          auto-activate-base: true
           python-version: '3.12.7'
-          environment-file: MLProject/conda.yaml
-          activate-environment: mlflow-env
-          use-only-tar-bz2: true
+          channels: conda-forge,defaults
+          channel-priority: true
 
       # 6. Menjalankan MLflow project (training model)
       - name: Run MLflow project
