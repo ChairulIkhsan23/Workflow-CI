@@ -28,9 +28,18 @@ jobs:
 
       # 3. Menyiapkan environment Python 3.12.7
       - name: Set up Python 3.12.7
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.12.7'
+      
+      # 3.3 Setup conda environment
+      - name: Setup conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: '3.12.7'
+          environment-file: MLProject/conda.yaml
+          activate-environment: mlflow-env
 
       # 4. Memeriksa environment yang sudah siap
       - name: Check Env
@@ -45,7 +54,7 @@ jobs:
           pip install --upgrade pip
           pip install \
             mlflow==2.19.0 \
-            scikit-learn==1.8.0 \
+            scikit-learn==1.5.2 \
             numpy \
             pandas \
             matplotlib
@@ -54,69 +63,103 @@ jobs:
       - name: Run MLflow project
         run: |
           cd MLProject
-          python modelling.py --C 1.0 --max_iter 1000
+          mlflow run . --env-manager=local -P C=1.0 -P max_iter=1000
+        env:
+          MLFLOW_TRACKING_URI: "file:./mlruns"
 
       # 7. Mendapatkan run_id dari MLflow run terakhir
       - name: Get latest MLflow run_id
-        id: mlflow_run
         run: |
           cd MLProject
-          RUN_ID=$(mlflow runs list --experiment-id 0 --max-results 1 | tail -1 | awk '{print $1}')
-          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
-          echo "Latest run_id: $RUN_ID"
+          RUN_ID=$(mlflow runs list --experiment-id 0 --max-results 1 --order-by start_time desc | grep -oP 'run_id: \K\S+' | head -1)
+          if [ -z "$RUN_ID" ]; then
+            echo "WARNING: No run found, using fallback"
+            RUN_ID="fallback_run_id"
+          fi
+          echo "LATEST_RUN_ID=$RUN_ID" >> $GITHUB_ENV
+          echo "Latest MLflow Run ID: $RUN_ID"
+          echo $RUN_ID > MLProject/latest_run_id.txt
+        env:
+          MLFLOW_TRACKING_URI: "file:./mlruns"
 
-      # 8. Menyimpan hasil training sebagai artifact (model, vectorizer, dll)
+      # 8. Install Python dependencies
+      - name: Install Python dependencies
+        run: pip install requests
+
+      # 9. Menyimpan hasil training sebagai model artifacts
       - name: Upload model artifacts to GitHub
-        uses: actions/upload-artifact@v4
-        with:
-          name: model-artifacts
-          path: MLProject/
-          retention-days: 30
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          mkdir -p model_artifacts
 
-      # 9. Membangun Docker image dari model yang sudah dilatih
+          cp MLProject/latest_run_id.txt model_artifacts/ 2>/dev/null || true
+          cp MLProject/model.pkl model_artifacts/ 2>/dev/null || true
+          cp MLProject/tfidf_vectorizer.pkl model_artifacts/ 2>/dev/null || true
+          cp -r MLProject/mlruns model_artifacts/ 2>/dev/null || true
+
+          git add -f model_artifacts/
+          git diff --staged --quiet && echo "No changes." || (
+            git commit -m "ci: save model artifacts [run=${{ env.LATEST_RUN_ID }}] [$(date +'%Y-%m-%d %H:%M')]"
+            git push
+          )
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 10. Membangun Docker image dari model yang sudah dilatih
       - name: Build Docker Model
         run: |
-          cd MLProject
-          mlflow models build-docker -m "runs:/${{ steps.mlflow_run.outputs.run_id }}/model" -n "chairulikhsan23/sentimen-dana-mlflow:latest"
+          echo "Building Docker image..."
+          mlflow models build-docker \
+            --model-uri "runs:/${{ env.LATEST_RUN_ID }}/model" \
+            --name "chairulikhsan23/sentimen-dana-mlflow:latest" \
+            --env-manager local
+        env:
+          MLFLOW_TRACKING_URI: "file://${{ github.workspace }}/MLProject/mlruns"
 
-      # 10. Login ke Docker Hub menggunakan secrets
+      # 11. Login ke Docker Hub menggunakan secrets
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 11. Memberi tag pada Docker image (latest dan commit hash)
+      # 12. Memberi tag pada Docker image (latest dan commit hash)
       - name: Tag Docker Image
         run: |
-          docker tag chairulikhsan23/sentimen-dana-mlflow:latest chairulikhsan23/sentimen-dana-mlflow:${{ github.sha }}
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          docker tag chairulikhsan23/sentimen-dana-mlflow:latest ${{ secrets.DOCKER_USERNAME }}/sentimen-dana-mlflow:latest
+          docker tag chairulikhsan23/sentimen-dana-mlflow:latest ${{ secrets.DOCKER_USERNAME }}/sentimen-dana-mlflow:$SHORT_SHA
+          echo "DOCKER_TAG=$SHORT_SHA" >> $GITHUB_ENV
 
-      # 12. Push Docker image ke Docker Hub
+      # 13. Push Docker image ke Docker Hub
       - name: Push Docker Image
         run: |
-          docker push chairulikhsan23/sentimen-dana-mlflow:latest
-          docker push chairulikhsan23/sentimen-dana-mlflow:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/sentimen-dana-mlflow:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/sentimen-dana-mlflow:${{ env.DOCKER_TAG }}
+          echo "Docker image pushed!"
 
-      # 13. Menampilkan status setelah login Docker Hub (selalu dijalankan)
+      # 14. Menampilkan status setelah login Docker Hub (selalu dijalankan)
       - name: Post Log in to Docker Hub
         if: always()
         run: echo "Docker Hub push completed"
 
-      # 14. Menampilkan status environment Python (selalu dijalankan)
+      # 15. Menampilkan status environment Python (selalu dijalankan)
       - name: Post Set up Python 3.12.7
         if: always()
         run: echo "Python environment cleanup"
 
-      # 15. Menampilkan status checkout (selalu dijalankan)
+      # 16. Menampilkan status checkout (selalu dijalankan)
       - name: Post Run actions/checkout@v3
         if: always()
         run: echo "Workflow completed"
 
-      # 16. Ringkasan akhir job (selalu dijalankan)
+      # 17. Ringkasan akhir job (selalu dijalankan)
       - name: Complete job
         if: always()
         run: |
           echo "SUMMARY"
           echo "Status: ${{ job.status }}"
+          echo "RUN ID: ${{ env.LATEST_RUN_ID }}"
           echo "Timestamp: $(date +'%Y-%m-%d %H:%M:%S')"
-          echo "Docker Image: chairulikhsan23/sentimen-dana-mlflow:latest"
+          echo "Docker Image: ${{ secrets.DOCKER_USERNAME }}/sentimen-dana-mlflow:latest"
