@@ -71,14 +71,14 @@ jobs:
       - name: Get latest MLflow run_id
         run: |
           cd MLProject
-          RUN_ID=$(mlflow runs list --experiment-id 0 --max-results 1 --order-by start_time desc | grep -oP 'run_id: \K\S+' | head -1)
-          if [ -z "$RUN_ID" ]; then
-            echo "WARNING: No run found, using fallback"
-            RUN_ID="fallback_run_id"
+          if [ -f run_id.txt ]; then
+            RUN_ID=$(cat run_id.txt)
+            echo "LATEST_RUN_ID=$RUN_ID" >> $GITHUB_ENV
+            echo "Latest MLflow Run ID: $RUN_ID"
+          else
+            echo "WARNING: run_id.txt not found"
+            echo "LATEST_RUN_ID=NOT_FOUND" >> $GITHUB_ENV
           fi
-          echo "LATEST_RUN_ID=$RUN_ID" >> $GITHUB_ENV
-          echo "Latest MLflow Run ID: $RUN_ID"
-          echo $RUN_ID > MLProject/latest_run_id.txt
         env:
           MLFLOW_TRACKING_URI: "file:./mlruns"
 
