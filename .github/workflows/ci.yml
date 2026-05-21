@@ -63,7 +63,7 @@ jobs:
       - name: Run MLflow project
         run: |
           cd MLProject
-          python modelling.py C=1.0 -P max_iter=1000
+          python modelling.py --C 1.0 --max_iter 1000
         env:
           MLFLOW_TRACKING_URI: "file:./mlruns"
 
