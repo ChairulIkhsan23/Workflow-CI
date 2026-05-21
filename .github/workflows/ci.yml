@@ -11,8 +11,6 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     timeout-minutes: 60
 
     steps:
@@ -25,12 +23,12 @@ jobs:
           echo "Commit: ${{ github.sha }}"
 
       # 2. Mengambil kode dari repository
-      - name: Run actions/checkout@v3
-        uses: actions/checkout@v3
+      - name: Run actions/checkout@v4
+        uses: actions/checkout@v4
 
       # 3. Menyiapkan environment Python 3.12.7
       - name: Set up Python 3.12.7
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12.7'
       
@@ -140,7 +138,7 @@ jobs:
         run: echo "Python environment cleanup"
 
       # 16. Menampilkan status checkout (selalu dijalankan)
-      - name: Post Run actions/checkout@v3
+      - name: Post Run actions/checkout@v4
         if: always()
         run: echo "Workflow completed"
 
