@@ -15,8 +15,8 @@ parser.add_argument('--C', type=float, default=1.0, help='Regularization strengt
 parser.add_argument('--max_iter', type=int, default=1000, help='Maximum iterations')
 args = parser.parse_args()
 
-# Setup MLflow tracking ke server lokal
-mlflow.set_tracking_uri("http://127.0.0.1:5000")
+# Setup MLflow tracking 
+mlflow.set_tracking_uri("file:./mlruns")
 mlflow.set_experiment("Sentimen Analisis DANA")
 
 # Aktifkan autolog MLflow untuk scikit-learn
@@ -124,6 +124,6 @@ with mlflow.start_run(run_name="LogisticRegression_TfIdf_DANA"):
     run_id = mlflow.active_run().info.run_id
     print(f"\n✓ MLflow Run ID : {run_id}")
     print(f"✓ Experiment    : Sentimen Analisis DANA")
-    print(f"✓ Tracking UI   : http://127.0.0.1:5000")
+    print(f"✓ Tracking UI   : file:./mlruns")
 
 print("\n✓ Training selesai.")
