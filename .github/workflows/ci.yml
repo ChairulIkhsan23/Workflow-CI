@@ -1,1 +1,117 @@
+name: MLflow Project CI - Sentimen Analisis Dana
 
+# Trigger workflow
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'MLProject/**'  # Workflow berjalan hanya jika ada perubahan di folder MLProject
+  workflow_dispatch:  # Memungkinkan menjalankan workflow manual dari GitHub UI
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      # 1. Menampilkan informasi awal job
+      - name: Set up job
+        run: |
+          echo "MLflow Project CI - Chairul Ikhsan"
+          echo "Trigger: ${{ github.event_name }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+
+      # 2. Mengambil kode dari repository
+      - name: Run actions/checkout@v3
+        uses: actions/checkout@v3
+
+      # 3. Menyiapkan environment Python 3.12.7
+      - name: Set up Python 3.12.7
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.7'
+
+      # 4. Memeriksa environment yang sudah siap
+      - name: Check Env
+        run: |
+          python --version
+          pip --version
+          echo "Environment ready"
+
+      # 5. Menginstall library yang dibutuhkan
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install mlflow pandas numpy scikit-learn joblib
+
+      # 6. Menjalankan MLflow project (training model)
+      - name: Run MLflow project
+        run: |
+          cd MLProject
+          mlflow run . -P C=1.0 -P max_iter=1000
+
+      # 7. Mendapatkan run_id dari MLflow run terakhir
+      - name: Get latest MLflow run_id
+        id: mlflow_run
+        run: |
+          cd MLProject
+          RUN_ID=$(mlflow runs list --experiment-id 0 --max-results 1 | tail -1 | awk '{print $1}')
+          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
+          echo "Latest run_id: $RUN_ID"
+
+      # 8. Menyimpan hasil training sebagai artifact (model, vectorizer, dll)
+      - name: Upload model artifacts to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-artifacts
+          path: MLProject/
+          retention-days: 30
+
+      # 9. Membangun Docker image dari model yang sudah dilatih
+      - name: Build Docker Model
+        run: |
+          cd MLProject
+          mlflow models build-docker -m "runs:/${{ steps.mlflow_run.outputs.run_id }}/model" -n "chairulikhsan23/sentimen-dana-mlflow:latest"
+
+      # 10. Login ke Docker Hub menggunakan secrets
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 11. Memberi tag pada Docker image (latest dan commit hash)
+      - name: Tag Docker Image
+        run: |
+          docker tag chairulikhsan23/sentimen-dana-mlflow:latest chairulikhsan23/sentimen-dana-mlflow:${{ github.sha }}
+
+      # 12. Push Docker image ke Docker Hub
+      - name: Push Docker Image
+        run: |
+          docker push chairulikhsan23/sentimen-dana-mlflow:latest
+          docker push chairulikhsan23/sentimen-dana-mlflow:${{ github.sha }}
+
+      # 13. Menampilkan status setelah login Docker Hub (selalu dijalankan)
+      - name: Post Log in to Docker Hub
+        if: always()
+        run: echo "Docker Hub push completed"
+
+      # 14. Menampilkan status environment Python (selalu dijalankan)
+      - name: Post Set up Python 3.12.7
+        if: always()
+        run: echo "Python environment cleanup"
+
+      # 15. Menampilkan status checkout (selalu dijalankan)
+      - name: Post Run actions/checkout@v3
+        if: always()
+        run: echo "Workflow completed"
+
+      # 16. Ringkasan akhir job (selalu dijalankan)
+      - name: Complete job
+        if: always()
+        run: |
+          echo "SUMMARY"
+          echo "Status: ${{ job.status }}"
+          echo "Timestamp: $(date +'%Y-%m-%d %H:%M:%S')"
+          echo "Docker Image: chairulikhsan23/sentimen-dana-mlflow:latest"
