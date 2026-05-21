@@ -122,6 +122,10 @@ with mlflow.start_run(run_name="LogisticRegression_TfIdf_DANA"):
     print(classification_report(y_test, y_pred_test, zero_division=0))
 
     run_id = mlflow.active_run().info.run_id
+    # Simpan run_id ke file 
+    with open("run_id.txt", "w") as f:
+        f.write(run_id)
+    
     print(f"\n✓ MLflow Run ID : {run_id}")
     print(f"✓ Experiment    : Sentimen Analisis DANA")
     print(f"✓ Tracking UI   : file:./mlruns")
