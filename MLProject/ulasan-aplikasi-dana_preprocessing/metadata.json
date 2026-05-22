@@ -1,26 +1,26 @@
 {
-  "timestamp": "2026-05-21T03:03:25.380334",
+  "timestamp": "2026-05-22T23:55:01.583535",
   "preprocessing_info": {
-    "original_rows": 65000,
+    "original_rows": 15000,
     "original_columns": 12,
-    "final_rows": 64931,
+    "final_rows": 14995,
     "final_columns": 19,
-    "rows_retained_percentage": 99.89
+    "rows_retained_percentage": 99.97
   },
   "data_split": {
-    "train_samples": 45451,
+    "train_samples": 10496,
     "train_percentage": 70.0,
-    "validation_samples": 9740,
+    "validation_samples": 2249,
     "validation_percentage": 15.0,
-    "test_samples": 9740,
-    "test_percentage": 15.0,
+    "test_samples": 2250,
+    "test_percentage": 15.01,
     "random_state": 42,
     "stratify": true
   },
   "sentiment_distribution": {
-    "positive": 36343,
-    "negative": 18864,
-    "neutral": 9724
+    "positive": 8568,
+    "negative": 4021,
+    "neutral": 2406
   },
   "preprocessing_steps": [
     "Tangani nilai kosong (hapus isi kosong)",
