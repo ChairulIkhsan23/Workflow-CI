@@ -11,8 +11,8 @@ import argparse
 
 # Argumen parser untuk CI
 parser = argparse.ArgumentParser()
-parser.add_argument('--C', type=float, default=1.0, help='Regularization strength')
-parser.add_argument('--max_iter', type=int, default=1000, help='Maximum iterations')
+parser.add_argument('--C', type=float, default=10.0, help='Regularization strength')
+parser.add_argument('--max_iter', type=int, default=500, help='Maximum iterations')
 args = parser.parse_args()
 
 # Setup MLflow tracking 
