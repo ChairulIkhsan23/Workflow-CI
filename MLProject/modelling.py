@@ -48,7 +48,7 @@ for label, count in zip(*np.unique(y_train, return_counts=True)):
 TFIDF_MAX_FEATURES = 5000
 TFIDF_NGRAM_RANGE  = (1, 2)
 
-# Parameter model (menggunakan args dari CLI)
+# Parameter model (menggunakan args CLI)
 LR_RANDOM_STATE = 42
 
 # Ekstraksi fitur menggunakan TF-IDF
