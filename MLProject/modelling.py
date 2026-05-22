@@ -107,7 +107,12 @@ with mlflow.start_run(run_name="LogisticRegression_TfIdf_DANA"):
     # Menyimpan model dan vectorizer ke file lokal
     joblib.dump(tfidf,  "tfidf_vectorizer.pkl")
     joblib.dump(model, "logistic_regression_model.pkl")
-    print("✓ Model dan vectorizer berhasil disimpan ke file .pkl")
+
+    # Log ke MLflow sebagai artifact
+    mlflow.log_artifact("tfidf_vectorizer.pkl")
+    mlflow.log_artifact("logistic_regression_model.pkl")
+    
+    print("✓ Model dan vectorizer berhasil disimpan ke file .pkl dan di-log ke MLflow")
 
     # Menampilkan ringkasan hasil evaluasi
     print("\n✓ Hasil Evaluasi Model")
