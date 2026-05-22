@@ -1,0 +1,15 @@
+artifact_uri: file:///home/runner/work/Workflow-CI/Workflow-CI/MLProject/mlruns/388723759284450236/ff0745df188549428910d010c1365798/artifacts
+end_time: 1779472512278
+entry_point_name: ''
+experiment_id: '388723759284450236'
+lifecycle_stage: active
+run_id: ff0745df188549428910d010c1365798
+run_name: LogisticRegression_TfIdf_DANA
+run_uuid: ff0745df188549428910d010c1365798
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779472504468
+status: 3
+tags: []
+user_id: runner
