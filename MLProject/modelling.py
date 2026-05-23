@@ -104,12 +104,6 @@ with mlflow.start_run(run_name="LogisticRegression_TfIdf_DANA"):
     mlflow.log_param("cli_C", args.C)
     mlflow.log_param("cli_max_iter", args.max_iter)
 
-    # Log ke MLflow sebagai artifact
-    mlflow.log_artifact("tfidf_vectorizer.pkl")
-    mlflow.log_artifact("logistic_regression_model.pkl")
-    
-    print("✓ Model dan vectorizer berhasil disimpan ke file .pkl")
-
     # Menampilkan ringkasan hasil evaluasi
     print("\n✓ Hasil Evaluasi Model")
     print(f"✓ Akurasi Train      : {train_accuracy:.4f}")
