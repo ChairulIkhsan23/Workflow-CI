@@ -104,6 +104,38 @@ with mlflow.start_run(run_name="LogisticRegression_TfIdf_DANA"):
     mlflow.log_param("cli_C", args.C)
     mlflow.log_param("cli_max_iter", args.max_iter)
 
+    # Simpan model dan vectorizer ke file
+    joblib.dump(tfidf, "tfidf_vectorizer.pkl")
+    joblib.dump(model, "logistic_regression_model.pkl")
+
+    # Custom PyFunc Model dengan vectorizer
+    class ModelWithVectorizer(mlflow.pyfunc.PythonModel):
+        def load_context(self, context):
+            self.tfidf = joblib.load(context.artifacts["tfidf_vectorizer"])
+            self.model = joblib.load(context.artifacts["model"])
+        
+        def predict(self, context, model_input, params=None):
+            if isinstance(model_input, dict):
+                texts = model_input.get("text", [])
+            elif hasattr(model_input, 'columns'):
+                texts = model_input["text"].values
+            else:
+                texts = model_input
+            
+            X = self.tfidf.transform(texts)
+            return self.model.predict(X)
+
+    # Log custom model ke MLflow dengan artifacts
+    mlflow.pyfunc.log_model(
+        artifact_path="model",
+        python_model=ModelWithVectorizer(),
+        artifacts={
+            "tfidf_vectorizer": "tfidf_vectorizer.pkl",
+            "model": "logistic_regression_model.pkl"
+        },
+        registered_model_name="SentimenDANA_LR_Tuned",
+    )
+
     # Menampilkan ringkasan hasil evaluasi
     print("\n✓ Hasil Evaluasi Model")
     print(f"✓ Akurasi Train      : {train_accuracy:.4f}")
