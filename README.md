@@ -119,3 +119,11 @@ Model menggunakan TF-IDF vectorization dengan konfigurasi:
 - Max features: 5000
 - N-gram range: (1, 2)
 - Tokenizer berbasis text preprocessing
+
+## Author
+
+- **Chairul Ikhsan** APC526D6Y0545
+
+## Lisensi
+
+Pijak x IBM SkillsBuild Dicoding 2026 - Proyek Membangun Sistem Machine Learning
