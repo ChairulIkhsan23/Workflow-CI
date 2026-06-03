@@ -121,7 +121,7 @@ with mlflow.start_run(run_name="LogisticRegression_TfIdf_DANA"):
 
     # Log custom model dengan artifacts
     mlflow.pyfunc.log_model(
-        artifact_path="model_with_vectorizer",
+        artifact_path="model",
         python_model=ModelWithVectorizer(),
         artifacts={
             "tfidf_vectorizer": "tfidf_vectorizer.pkl",
