@@ -1,0 +1,15 @@
+artifact_uri: file:///home/runner/work/Workflow-CI/Workflow-CI/MLProject/mlruns/149448269488088420/2e230475ddd14a3f9a0941600313b2b4/artifacts
+end_time: 1780538523739
+entry_point_name: ''
+experiment_id: '149448269488088420'
+lifecycle_stage: active
+run_id: 2e230475ddd14a3f9a0941600313b2b4
+run_name: abrasive-stork-305
+run_uuid: 2e230475ddd14a3f9a0941600313b2b4
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1780538513643
+status: 3
+tags: []
+user_id: runner

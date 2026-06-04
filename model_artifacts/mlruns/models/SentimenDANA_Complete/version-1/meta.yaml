@@ -1,0 +1,14 @@
+aliases: []
+creation_timestamp: 1780538523294
+current_stage: None
+description: null
+last_updated_timestamp: 1780538523294
+name: SentimenDANA_Complete
+run_id: 2e230475ddd14a3f9a0941600313b2b4
+run_link: null
+source: file:///home/runner/work/Workflow-CI/Workflow-CI/MLProject/mlruns/149448269488088420/2e230475ddd14a3f9a0941600313b2b4/artifacts/model
+status: READY
+status_message: null
+storage_location: file:///home/runner/work/Workflow-CI/Workflow-CI/MLProject/mlruns/149448269488088420/2e230475ddd14a3f9a0941600313b2b4/artifacts/model
+user_id: null
+version: 1
